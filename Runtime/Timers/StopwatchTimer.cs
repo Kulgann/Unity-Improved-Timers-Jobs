@@ -14,5 +14,7 @@ namespace ImprovedTimers {
         }
 
         public override bool IsFinished => false;
+        
+        public override TimerType GetTimerType() => TimerType.Stopwatch;
     }
 }

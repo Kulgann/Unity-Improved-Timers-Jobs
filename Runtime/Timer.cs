@@ -1,4 +1,5 @@
 using System;
+using Unity.Collections;
 using UnityEngine;
 
 namespace ImprovedTimers {
@@ -45,6 +46,41 @@ namespace ImprovedTimers {
         public virtual void Reset(float newTime) {
             initialTime = newTime;
             Reset();
+        }
+        
+        /// <summary>
+        /// Gets the timer type for job system processing.
+        /// </summary>
+        public abstract TimerType GetTimerType();
+        
+        /// <summary>
+        /// Writes timer data to SOA native arrays for job processing.
+        /// </summary>
+        public virtual void WriteToArrays(int index, 
+            NativeArray<float> currentTimes,
+            NativeArray<float> initialTimes,
+            NativeArray<float> thresholdValues,
+            NativeArray<float> intervalSteps,
+            NativeArray<TimerType> types,
+            NativeArray<TimerFlags> flags) {
+            
+            currentTimes[index] = CurrentTime;
+            initialTimes[index] = initialTime;
+            thresholdValues[index] = 0f;
+            intervalSteps[index] = 0f;
+            types[index] = GetTimerType();
+            flags[index] = IsRunning ? TimerFlags.Running : TimerFlags.None;
+        }
+        
+        /// <summary>
+        /// Reads timer data back from SOA native arrays after job processing.
+        /// </summary>
+        public virtual void ReadFromArrays(int index,
+            NativeArray<float> currentTimes,
+            NativeArray<float> thresholdValues,
+            NativeArray<TimerFlags> flags) {
+            
+            CurrentTime = currentTimes[index];
         }
 
         bool disposed;

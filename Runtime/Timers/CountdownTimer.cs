@@ -18,5 +18,7 @@ namespace ImprovedTimers {
         }
 
         public override bool IsFinished => CurrentTime <= 0;
+        
+        public override TimerType GetTimerType() => TimerType.Countdown;
     }
 }
