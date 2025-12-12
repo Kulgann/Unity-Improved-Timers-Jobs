@@ -17,6 +17,7 @@ namespace ImprovedTimers {
             nextInterval = totalTime - interval;
         }
 
+        #pragma warning disable CS0672 // Member overrides obsolete member
         public override void Tick() {
             if (IsRunning && CurrentTime > 0) {
                 CurrentTime -= Time.deltaTime;
@@ -33,6 +34,7 @@ namespace ImprovedTimers {
                 Stop();
             }
         }
+        #pragma warning restore CS0672
 
         public override bool IsFinished => CurrentTime <= 0;
         

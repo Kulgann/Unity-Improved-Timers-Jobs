@@ -68,13 +68,13 @@ namespace ImprovedTimers {
         float TickFrequency(int index, float currentTime, ref TimerFlags flags) {
             float threshold = ThresholdValues[index];
             
+            // Always add deltaTime first
+            currentTime += DeltaTime;
+            
+            // Then check if threshold is exceeded
             if (currentTime >= threshold) {
                 currentTime -= threshold;
                 flags |= TimerFlags.FrequencyTicked;
-            }
-            
-            if (currentTime < threshold) {
-                currentTime += DeltaTime;
             }
             
             return currentTime;

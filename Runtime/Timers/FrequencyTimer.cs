@@ -17,6 +17,7 @@ namespace ImprovedTimers {
             CalculateTimeThreshold(ticksPerSecond);
         }
 
+        #pragma warning disable CS0672 // Member overrides obsolete member
         public override void Tick() {
             if (IsRunning && CurrentTime >= timeThreshold) {
                 CurrentTime -= timeThreshold;
@@ -27,6 +28,7 @@ namespace ImprovedTimers {
                 CurrentTime += Time.deltaTime;
             }
         }
+        #pragma warning restore CS0672
 
         public override bool IsFinished => !IsRunning;
         

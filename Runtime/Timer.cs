@@ -35,6 +35,11 @@ namespace ImprovedTimers {
             }
         }
 
+        /// <summary>
+        /// Legacy tick method. Timer processing now happens in the job system.
+        /// This method is kept for backward compatibility with existing code.
+        /// </summary>
+        [Obsolete("Timer processing now happens in the job system. This method is kept for backward compatibility.")]
         public abstract void Tick();
         public abstract bool IsFinished { get; }
 

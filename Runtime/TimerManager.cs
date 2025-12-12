@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace ImprovedTimers {
     /// <summary>
@@ -28,7 +31,40 @@ namespace ImprovedTimers {
         static bool isInitialized;
         static int capacity;
         
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        static void RegisterEditorCallbacks() {
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+            AppDomain.CurrentDomain.DomainUnload -= OnDomainUnload;
+            AppDomain.CurrentDomain.DomainUnload += OnDomainUnload;
+        }
+        
+        static void OnPlayModeStateChanged(PlayModeStateChange state) {
+            if (state == PlayModeStateChange.ExitingPlayMode) {
+                DisposeArrays();
+            }
+        }
+        
+        static void OnDomainUnload(object sender, EventArgs e) {
+            DisposeArrays();
+        }
+#endif
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void OnSubsystemRegistration() {
+            // Ensure arrays are disposed when domain is reloaded (e.g., enter play mode)
+            DisposeArrays();
+            isInitialized = false;
+            timers.Clear();
+            sweep.Clear();
+            finishedTimers.Clear();
+        }
+        
         public static void RegisterTimer(Timer timer) {
+            if (!isInitialized) {
+                EnsureInitialized();
+            }
             timers.Add(timer);
             EnsureCapacity(timers.Count);
         }
@@ -93,8 +129,6 @@ namespace ImprovedTimers {
         }
         
         static void EnsureCapacity(int requiredCapacity) {
-            if (!isInitialized) return;
-            
             if (requiredCapacity <= capacity) return;
             
             // Double capacity until sufficient
