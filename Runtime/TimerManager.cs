@@ -62,9 +62,7 @@ namespace ImprovedTimers {
         }
         
         public static void RegisterTimer(Timer timer) {
-            if (!isInitialized) {
-                EnsureInitialized();
-            }
+            EnsureInitialized();
             timers.Add(timer);
             EnsureCapacity(timers.Count);
         }

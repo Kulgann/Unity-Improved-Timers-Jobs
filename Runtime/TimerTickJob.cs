@@ -14,7 +14,7 @@ namespace ImprovedTimers {
         // SOA data layout for cache efficiency
         public NativeArray<float> CurrentTimes;
         public NativeArray<float> InitialTimes;
-        public NativeArray<float> ThresholdValues; // timeThreshold for Frequency, nextInterval for Interval, interval for Interval
+        public NativeArray<float> ThresholdValues; // timeThreshold for Frequency, nextInterval for Interval
         public NativeArray<float> IntervalSteps;   // interval step for Interval timers
         public NativeArray<TimerType> Types;
         public NativeArray<TimerFlags> Flags;
