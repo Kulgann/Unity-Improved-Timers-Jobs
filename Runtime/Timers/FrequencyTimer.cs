@@ -1,4 +1,5 @@
 using System;
+using Unity.Collections;
 using UnityEngine;
 
 namespace ImprovedTimers {
@@ -16,6 +17,7 @@ namespace ImprovedTimers {
             CalculateTimeThreshold(ticksPerSecond);
         }
 
+        #pragma warning disable CS0672 // Member overrides obsolete member
         public override void Tick() {
             if (IsRunning && CurrentTime >= timeThreshold) {
                 CurrentTime -= timeThreshold;
@@ -26,8 +28,11 @@ namespace ImprovedTimers {
                 CurrentTime += Time.deltaTime;
             }
         }
+        #pragma warning restore CS0672
 
         public override bool IsFinished => !IsRunning;
+        
+        public override TimerType GetTimerType() => TimerType.Frequency;
 
         public override void Reset() {
             CurrentTime = 0;
@@ -41,6 +46,31 @@ namespace ImprovedTimers {
         void CalculateTimeThreshold(int ticksPerSecond) {
             TicksPerSecond = ticksPerSecond;
             timeThreshold = 1f / TicksPerSecond;
+        }
+        
+        public override void WriteToArrays(int index,
+            NativeArray<float> currentTimes,
+            NativeArray<float> initialTimes,
+            NativeArray<float> thresholdValues,
+            NativeArray<float> intervalSteps,
+            NativeArray<TimerType> types,
+            NativeArray<TimerFlags> flags) {
+            
+            base.WriteToArrays(index, currentTimes, initialTimes, thresholdValues, intervalSteps, types, flags);
+            thresholdValues[index] = timeThreshold;
+        }
+        
+        public override void ReadFromArrays(int index,
+            NativeArray<float> currentTimes,
+            NativeArray<float> thresholdValues,
+            NativeArray<TimerFlags> flags) {
+            
+            base.ReadFromArrays(index, currentTimes, thresholdValues, flags);
+            
+            // Check if a tick occurred during job processing
+            if ((flags[index] & TimerFlags.FrequencyTicked) != 0) {
+                OnTick.Invoke();
+            }
         }
     }
 }

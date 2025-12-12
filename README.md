@@ -4,6 +4,10 @@
 An extensible Timer solution for Unity Game Development.  Timers are self managing 
 by injecting a Timer Manager class into Unity's Update loop.
 
+**New in this version:** The timer system now uses Unity's Job System with a Structure of Arrays (SOA) 
+data layout for high-performance parallel processing. Timers are processed in batches of 64 per thread 
+using `IJobParallelFor`, enabling efficient handling of thousands of timers with minimal main thread impact.
+
 Create your own Timers by extending the Timer abstract class!
 
 ## Example Usage
@@ -46,11 +50,24 @@ adjusted every frame.  The included Timers are:
 - CountdownTimer: Counts down from a specified time to zero.
 - FrequencyTimer: Ticks N times per second.
 - StopwatchTimer: Counts up from zero to infinity.
+- IntervalTimer: Countdown timer that fires events at regular intervals.
 
-Classes extending the Timer class must implement the `Tick` method to increment or decrement the Timer,
-and the `IsFinished` property which is a convenience for consumers.
+Classes extending the Timer class must implement:
+- The `Tick` method to increment or decrement the Timer
+- The `IsFinished` property which is a convenience for consumers
+- The `GetTimerType()` method to return the appropriate `TimerType` enum value
+- Optionally override `WriteToArrays` and `ReadFromArrays` for custom job data
 
 Call `Dispose` when you don't need a Timer anymore to ensure proper garbage collection.
+
+## Architecture
+
+The timer system uses a **Structure of Arrays (SOA)** layout for optimal cache performance:
+
+- **NativeArrays** store timer data (currentTimes, initialTimes, types, flags, etc.)
+- **IJobParallelFor** processes timers in parallel batches of 64
+- **Burst compilation** provides additional performance optimizations
+- Timer callbacks (OnTick, OnInterval, OnTimerStop) are invoked on the main thread after job completion
 
 ## How to Install
 

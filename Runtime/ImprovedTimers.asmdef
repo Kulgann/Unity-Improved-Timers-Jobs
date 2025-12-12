@@ -1,10 +1,13 @@
 {
     "name": "ImprovedTimers",
     "rootNamespace": "ImprovedTimers",
-    "references": [],
+    "references": [
+        "Unity.Collections",
+        "Unity.Burst"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

@@ -1,4 +1,5 @@
 using System;
+using Unity.Collections;
 using UnityEngine;
 
 namespace ImprovedTimers {
@@ -16,6 +17,7 @@ namespace ImprovedTimers {
             nextInterval = totalTime - interval;
         }
 
+        #pragma warning disable CS0672 // Member overrides obsolete member
         public override void Tick() {
             if (IsRunning && CurrentTime > 0) {
                 CurrentTime -= Time.deltaTime;
@@ -32,8 +34,11 @@ namespace ImprovedTimers {
                 Stop();
             }
         }
+        #pragma warning restore CS0672
 
         public override bool IsFinished => CurrentTime <= 0;
+        
+        public override TimerType GetTimerType() => TimerType.Interval;
 
         public override void Reset() {
             base.Reset();
@@ -43,6 +48,35 @@ namespace ImprovedTimers {
         public override void Reset(float newTime) {
             base.Reset(newTime);
             nextInterval = initialTime - interval;
+        }
+        
+        public override void WriteToArrays(int index,
+            NativeArray<float> currentTimes,
+            NativeArray<float> initialTimes,
+            NativeArray<float> thresholdValues,
+            NativeArray<float> intervalSteps,
+            NativeArray<TimerType> types,
+            NativeArray<TimerFlags> flags) {
+            
+            base.WriteToArrays(index, currentTimes, initialTimes, thresholdValues, intervalSteps, types, flags);
+            thresholdValues[index] = nextInterval;
+            intervalSteps[index] = interval;
+        }
+        
+        public override void ReadFromArrays(int index,
+            NativeArray<float> currentTimes,
+            NativeArray<float> thresholdValues,
+            NativeArray<TimerFlags> flags) {
+            
+            base.ReadFromArrays(index, currentTimes, thresholdValues, flags);
+            
+            // Update the next interval threshold from the job
+            nextInterval = thresholdValues[index];
+            
+            // Check if an interval tick occurred during job processing
+            if ((flags[index] & TimerFlags.IntervalTicked) != 0) {
+                OnInterval.Invoke();
+            }
         }
     }
 }
